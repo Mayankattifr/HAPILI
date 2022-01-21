@@ -35,30 +35,49 @@ def make_list():
     #print(glob.glob("*.fits"))
     
     file=glob.glob("*.fits")
+    file=np.sort(file)
     
     
     
     print('Reading the header to figure out the type of file i.e, bias, flat, lamp or object')
+    #print(file)
+
     
     count=0
     
     bia=[]
-    lamp=[]
+    lamp_FENE=[]
+    lamp_FEHE=[]
     flat=[]
     target=[]
+    target1=[]
     objects=[]
+    objects1=[]
+
     
     while (count<len(file)):
-        hdul = fits.open(file[count])[0]
+	
+        hdul = fits.open(file[count], ignore_missing_end=True)[0]
+        #print(file[count])
+        #print(hdul.header['COMMENT'])
         if(hdul.header['EXPTIME']==0.0):
             bia.append(file[count])
-        elif(hdul.header['OBJECT']=='FeNe'):
-            lamp.append(file[count])
+        elif("amp" in hdul.header['OBJECT'] and "r7" in str(hdul.header['COMMENT'])):
+            
+            lamp_FEHE.append(file[count])  
+            
+        elif("amp" in hdul.header['OBJECT'] and "r8" in str(hdul.header['COMMENTX'])):
+            lamp_FENE.append(file[count])
+      
         elif(hdul.header['OBJECT']=='Halogen'):
             flat.append(file[count])
         else:
-            target.append(file[count])
-            objects.append(hdul.header['OBJECT']+'_Tar')
+            if("r7" in str(hdul.header['COMMENT']) or "r7" in str(hdul.header['COMMENTX'])):
+               target.append(file[count])
+               objects.append(hdul.header['OBJECT']+'_Gr7_Tar')
+            elif("r8" in str(hdul.header['COMMENT']) or "r8" in str(hdul.header['COMMENTX'])):
+               target.append(file[count])
+               objects.append(hdul.header['OBJECT']+'_Gr8_Tar')            
         
         count=count+1
         
@@ -73,17 +92,22 @@ def make_list():
     newlist = [[y[0] for y in mylist if y[1]==x] for x in values]
     values=list(values)
     
+
+    
     print('Bias files = ', bia)
     print('Flat files = ', flat)
-    print('Lamp files = ', lamp)
+    print('Lamp FENE files = ', lamp_FENE)
+    print('Lamp FEHE files = ', lamp_FEHE)
     
     count=0
     while (count<len(values)):
         print(values[count],'=',newlist[count])
         count=count+1
+        
+
     
     print('Starting with bias correction and flat fielding')
     
-    return (bia,flat,lamp,values,newlist) 
+    return (bia,flat,lamp_FENE,values,newlist) 
   
 make_list()     
