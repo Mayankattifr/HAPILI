@@ -58,16 +58,22 @@ def splot(file4):
     iraf.splot(file4)
 
 
+def swrite(file4):
+    iraf.wspectext(input=file4,output=file2a)
+
+
+
+
 file = input("Enter the fits file you want to reduce (the file should be in the form 'fc_bc_object.fits'): ")
 
 #file='fc_bc_V1207Tau.fits'
     
 aperture_target(file)
 
-file2 = re.sub('\.fits$', '', file)
+file2a=file2 = re.sub('\.fits$', '', file)
 
 file2=file2+'.ms.fits'
-
+file2a='wc_'+file2a+'.txt'
 
 
 Fene = input("Enter the lamp file you want to calibrate with: ")
@@ -84,3 +90,4 @@ identify(file3)
 refspec(file2,file3)
 dispcor(file2)
 splot(file4)
+swrite(file4)
